@@ -409,13 +409,21 @@ class Repoman {
 
         // Package Attributes (Documents)
         $dir = $this->get_docs_path($pkg_root_dir);
+        $buildDir = $this->get_build_path($pkg_root_dir);
         // defaults
         $docs = array(
             'readme'    => 'This package was built using Repoman (https://github.com/craftsmancoding/repoman/)',
             'changelog' => 'No change log defined.',
             'license'   => file_get_contents(dirname(dirname(dirname(__FILE__))) . '/docs/license.txt'),
         );
-        if (file_exists($dir) && is_dir($dir)) {
+        if($this->dirExists($buildDir)) {
+            if(file_exists($buildDir. '/setup.options.php')) {
+                $docs['setup-options'] = [
+                  'source' => $buildDir . '/setup.options.php',
+                ];
+            }
+        }
+        if ($this->dirExists($dir)) {
             $files = array();
             $build_docs = $this->get('build_docs');
             if (!empty($build_docs) && is_array($build_docs)) {
@@ -430,10 +438,6 @@ class Repoman {
                 $stub = basename($f, '.txt');
                 $stub = basename($stub, '.html');
                 $docs[$stub] = file_get_contents($f);
-                if (strtolower($stub) == 'readme') {
-                    $docs['readme'] = $docs['readme'] . "\n\n"
-                        . 'This package was built using Repoman (https://github.com/craftsmancoding/repoman/)';
-                }
                 $this->modx->log(modX::LOG_LEVEL_INFO, "Adding doc $stub from $f");
             }
         } else {
@@ -453,6 +457,13 @@ class Repoman {
     //------------------------------------------------------------------------------
     //! Public
     //------------------------------------------------------------------------------
+
+    /**
+     *
+     */
+    public function dirExists($dir) {
+        return file_exists($dir) && is_dir($dir);
+    }
 
     /**
      * Move directories into place in preparation for build. This recreates the
@@ -1031,6 +1042,23 @@ class Repoman {
         }
 
         return $pkg_root_dir . 'docs/';
+    }
+
+    /**
+     * Get the dir containing the build options.
+     * For better compatibility with composer, this is configurable.
+     *
+     * @param string $pkg_root_dir
+     *
+     * @return string dir with trailing slash
+     */
+    public function get_build_path($pkg_root_dir)
+    {
+        if ($this->get('build_path')) {
+            return $pkg_root_dir . $this->get('build_path');
+        }
+
+        return $pkg_root_dir . 'build/';
     }
 
     /**
