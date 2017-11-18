@@ -21,7 +21,7 @@
     },    
     "require": {
         "php": ">=5.3",
-        "composer-plugin-api": "1.0.0"
+        "composer-plugin-api": "1.0.*@dev"
     },
     "autoload": {
         "classmap":["model/repoman/"],
