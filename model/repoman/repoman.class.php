@@ -367,6 +367,14 @@ class Repoman {
                 'target' => "return MODX_CORE_PATH . 'components/';",
             ));
         }
+        $buildDir = $this->get_build_path($pkg_root_dir);
+        if($this->dirExists($buildDir)) {
+            if(file_exists($buildDir . '/setupoptions.resolver.php')) {
+                $vehicle->resolve('php', array(
+                    'source' => $buildDir . '/setupoptions.resolver.php',
+                ));
+            }
+        }
 
         $builder->putVehicle($vehicle);
 
@@ -409,7 +417,6 @@ class Repoman {
 
         // Package Attributes (Documents)
         $dir = $this->get_docs_path($pkg_root_dir);
-        $buildDir = $this->get_build_path($pkg_root_dir);
         // defaults
         $docs = array(
             'readme'    => 'This package was built using Repoman (https://github.com/craftsmancoding/repoman/)',
