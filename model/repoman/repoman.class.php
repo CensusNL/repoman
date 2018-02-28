@@ -371,26 +371,20 @@ class Repoman {
         $builder->putVehicle($vehicle);
 
         $buildDir = $this->get_build_path($pkg_root_dir);
+
+        $config = $this->config;
         if($this->dirExists($buildDir) && file_exists($buildDir . '/setupoptions.resolver.php')) {
             $resolver = "\n";
             $resolver .= substr(file_get_contents(dirname(__FILE__) . '/resolver.php'), 5);
-
             file_put_contents($buildDir . '/setupoptions.resolver.php', $resolver, FILE_APPEND );
-
-            $vehicle->resolve('php', array(
-                'source' => $buildDir . '/setupoptions.resolver.php',
-            ));
-
-            $builder->putVehicle($vehicle);
+            $config['source'] = $buildDir . '/setupoptions.resolver.php';
         } else {
-
             // Migrations: we attach our all-purpose resolver to handle migrations
-            $config = $this->config;
             $config['source'] = dirname(__FILE__) . '/resolver.php';
-            $attributes = array('vehicle_class' => 'xPDOScriptVehicle');
-            $vehicle = $builder->createVehicle($config, $attributes);
-            $builder->putVehicle($vehicle);
         }
+        $attributes = array('vehicle_class' => 'xPDOScriptVehicle');
+        $vehicle = $builder->createVehicle($config, $attributes);
+        $builder->putVehicle($vehicle);
 
         // Add Version Setting
         $repoman_version_build_attributes = array(
